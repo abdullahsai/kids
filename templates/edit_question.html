@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}تحرير سؤال{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>تحرير السؤال</h2>
+    <form method="post" class="admin-form">
+        <label>نص السؤال
+            <textarea name="question_text" required>{{ question.text }}</textarea>
+        </label>
+        <label>الإجابة الصحيحة
+            <input type="text" name="correct_answer" value="{{ question.correct_answer }}" required>
+        </label>
+        <div class="dynamic-list" id="incorrect-answers">
+            <label>إجابات خاطئة</label>
+            {% for answer in incorrect_options %}
+                <div class="dynamic-item">
+                    <input type="text" name="wrong_answers" value="{{ answer }}">
+                    <button type="button" class="remove-btn" aria-label="حذف">×</button>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="button" class="secondary-btn" id="add-wrong-answer">إضافة إجابة خاطئة</button>
+        <button type="submit" class="primary-btn">تحديث السؤال</button>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}
