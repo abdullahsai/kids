@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}سؤال اليوم{% endblock %}
+
+{% block content %}
+<section class="card quiz-card">
+    <h2>{{ question.text }}</h2>
+    <form method="post" class="options-form">
+        <div class="options-grid">
+            {% for option in options %}
+                <label class="option-item">
+                    <input type="radio" name="answer" value="{{ option }}" required>
+                    <span>{{ option }}</span>
+                </label>
+            {% endfor %}
+        </div>
+        <button type="submit" class="primary-btn">إرسال الإجابة</button>
+    </form>
+</section>
+
+<div id="feedback" class="feedback {% if feedback %}show{% endif %} {% if is_correct == False %}wrong{% elif is_correct %}correct{% endif %}">
+    {% if feedback %}
+        <p>{{ feedback }}</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+<script>
+    window.quizFeedbackState = {
+        hasFeedback: {{ 'true' if feedback else 'false' }},
+        isCorrect: {{ 'true' if is_correct else 'false' if is_correct == False else 'null' }}
+    };
+</script>
+{% endblock %}

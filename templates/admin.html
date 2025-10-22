@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>إضافة سؤال جديد</h2>
+    <form method="post" class="admin-form">
+        <label>نص السؤال
+            <textarea name="question_text" required placeholder="اكتب السؤال هنا"></textarea>
+        </label>
+        <label>الإجابة الصحيحة
+            <input type="text" name="correct_answer" required placeholder="الإجابة الصحيحة">
+        </label>
+        <label>إجابات خاطئة (سطر لكل إجابة)
+            <textarea name="wrong_answers" placeholder="إجابة خاطئة ١\nإجابة خاطئة ٢\n..."></textarea>
+        </label>
+        <button type="submit" class="primary-btn">حفظ السؤال</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>جميع الأسئلة</h2>
+    {% if questions %}
+        <ul class="questions-list">
+            {% for question in questions %}
+                <li>
+                    <div>
+                        <h3>{{ question.text }}</h3>
+                        <p><strong>الإجابة الصحيحة:</strong> {{ question.correct_answer }}</p>
+                        <p><strong>إجابات أخرى:</strong>
+                            {% set incorrect = question.options | selectattr('is_correct', 'equalto', False) | list %}
+                            {% if incorrect %}
+                                {{ incorrect | map(attribute='text') | join('، ') }}
+                            {% else %}
+                                لا توجد إجابات خاطئة محفوظة
+                            {% endif %}
+                        </p>
+                    </div>
+                    <a class="secondary-btn" href="{{ url_for('edit_question', question_id=question.id) }}">تحرير</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>لم يتم إضافة أي أسئلة بعد.</p>
+    {% endif %}
+</section>
+{% endblock %}

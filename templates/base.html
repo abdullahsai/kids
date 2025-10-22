@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}اختبار بسيط{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="main-header">
+        <h1>منصة الأسئلة التفاعلية</h1>
+        <nav>
+            <a href="{{ url_for('quiz') }}">الاختبار</a>
+            <a href="{{ url_for('admin') }}">لوحة التحكم</a>
+        </nav>
+    </header>
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="flash {{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>© {{ 2024 }} منصة تعليمية مبسطة</p>
+    </footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
