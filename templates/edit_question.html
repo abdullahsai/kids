@@ -5,7 +5,7 @@
 {% block content %}
 <section class="card">
     <h2>تحرير السؤال</h2>
-    <form method="post" class="admin-form">
+    <form method="post" class="admin-form" enctype="multipart/form-data">
         <label>نص السؤال
             <textarea name="question_text" required>{{ question.text }}</textarea>
         </label>
@@ -22,6 +22,27 @@
             {% endfor %}
         </div>
         <button type="button" class="secondary-btn" id="add-wrong-answer">إضافة إجابة خاطئة</button>
+        <label>تعليق أو تلميح سري
+            <textarea name="comment">{{ question.comment or '' }}</textarea>
+        </label>
+        <div class="dual-inputs">
+            <label>رابط الصورة (اختياري)
+                <input type="url" name="image_url" value="{% if question.image_path and question.image_path.startswith('http') %}{{ question.image_path }}{% endif %}" placeholder="https://example.com/image.png">
+            </label>
+            <label class="file-label">أو قم برفع صورة جديدة
+                <input type="file" name="image_file" accept="image/*">
+            </label>
+        </div>
+        {% if question.image_path %}
+            {% if question.image_path.startswith('http') %}
+                <img src="{{ question.image_path }}" alt="الصورة الحالية" class="question-thumbnail">
+            {% else %}
+                <img src="{{ url_for('static', filename=question.image_path) }}" alt="الصورة الحالية" class="question-thumbnail">
+            {% endif %}
+        {% endif %}
+        <label>كلمة المرور السرية
+            <input type="text" name="secret_password" value="{{ question.secret_password }}" required>
+        </label>
         <button type="submit" class="primary-btn">تحديث السؤال</button>
     </form>
 </section>
