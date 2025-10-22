@@ -7,7 +7,30 @@ from sqlalchemy import inspect, text
 from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
 
-DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(os.getcwd(), "quiz.db"))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+DATABASE_FILENAME = "quiz.db"
+
+
+def _resolve_database_path() -> str:
+    """Return the absolute path for the SQLite database file.
+
+    The database must always live inside the dedicated ``data`` directory at the
+    project root.  Any externally provided path is reduced to a filename so the
+    database is still created inside that directory.
+    """
+
+    requested_path = os.getenv("DATABASE_PATH")
+    if not requested_path:
+        return os.path.join(DATA_DIR, DATABASE_FILENAME)
+
+    # If an explicit path is provided, normalise it to a filename to ensure the
+    # database is kept within the data directory regardless of configuration.
+    filename = os.path.basename(requested_path)
+    return os.path.join(DATA_DIR, filename or DATABASE_FILENAME)
+
+
+DATABASE_PATH = _resolve_database_path()
 
 def create_app():
     app = Flask(__name__)
@@ -19,9 +42,7 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        db_directory = os.path.dirname(DATABASE_PATH)
-        if db_directory and not os.path.exists(db_directory):
-            os.makedirs(db_directory, exist_ok=True)
+        os.makedirs(DATA_DIR, exist_ok=True)
         db.create_all()
         ensure_database_schema()
         ensure_default_records()
