@@ -5,17 +5,46 @@
 {% block content %}
 <section class="card quiz-card">
     <h2>{{ question.text }}</h2>
-    <form method="post" class="options-form">
-        <div class="options-grid">
-            {% for option in options %}
-                <label class="option-item">
-                    <input type="radio" name="answer" value="{{ option }}" required>
-                    <span>{{ option }}</span>
-                </label>
-            {% endfor %}
+
+    {% if not show_password_gate %}
+        <form method="post" class="options-form">
+            <input type="hidden" name="action" value="answer">
+            <div class="options-grid">
+                {% for option in options %}
+                    <label class="option-item">
+                        <input type="radio" name="answer" value="{{ option }}" required>
+                        <span>{{ option }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            <button type="submit" class="primary-btn">إرسال الإجابة</button>
+        </form>
+    {% else %}
+        <div class="secret-gate">
+            {% if question.image_path %}
+                {% set image_path = question.image_path %}
+                {% if image_path.startswith('http') %}
+                    <img src="{{ image_path }}" alt="صورة سرية" class="secret-gate__image">
+                {% else %}
+                    <img src="{{ url_for('static', filename=image_path) }}" alt="صورة سرية" class="secret-gate__image">
+                {% endif %}
+            {% endif %}
+
+            {% if question.comment %}
+                <p class="secret-gate__comment">{{ question.comment }}</p>
+            {% endif %}
+
+            <form method="post" class="secret-gate__form">
+                <input type="hidden" name="action" value="password">
+                <label for="question_password">أدخل كلمة المرور السرية</label>
+                <input type="password" id="question_password" name="question_password" placeholder="••••••" required>
+                <button type="submit" class="primary-btn">فتح اللغز التالي</button>
+                {% if password_error %}
+                    <p class="secret-gate__error">{{ password_error }}</p>
+                {% endif %}
+            </form>
         </div>
-        <button type="submit" class="primary-btn">إرسال الإجابة</button>
-    </form>
+    {% endif %}
 </section>
 
 <div id="feedback" class="feedback {% if feedback %}show{% endif %} {% if is_correct == False %}wrong{% elif is_correct %}correct{% endif %}">
@@ -32,5 +61,6 @@
         hasFeedback: {{ 'true' if feedback else 'false' }},
         isCorrect: {{ 'true' if is_correct else 'false' if is_correct == False else 'null' }}
     };
+    window.showPasswordGate = {{ 'true' if show_password_gate else 'false' }};
 </script>
 {% endblock %}

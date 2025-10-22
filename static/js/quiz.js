@@ -17,4 +17,11 @@
       feedbackElement.classList.remove('show');
     }, 3000);
   }
+
+  if (window.showPasswordGate) {
+    const passwordInput = document.getElementById('question_password');
+    if (passwordInput) {
+      passwordInput.focus();
+    }
+  }
 })();

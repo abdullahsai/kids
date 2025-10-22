@@ -5,7 +5,8 @@
 {% block content %}
 <section class="card">
     <h2>إضافة سؤال جديد</h2>
-    <form method="post" class="admin-form">
+    <form method="post" class="admin-form" enctype="multipart/form-data">
+        <input type="hidden" name="form_type" value="add_question">
         <label>نص السؤال
             <textarea name="question_text" required placeholder="اكتب السؤال هنا"></textarea>
         </label>
@@ -15,12 +16,38 @@
         <label>إجابات خاطئة (سطر لكل إجابة)
             <textarea name="wrong_answers" placeholder="إجابة خاطئة ١\nإجابة خاطئة ٢\n..."></textarea>
         </label>
+        <label>تعليق أو تلميح سري
+            <textarea name="comment" placeholder="رسالة تشجيعية أو تلميح بالعربية"></textarea>
+        </label>
+        <div class="dual-inputs">
+            <label>رابط الصورة (اختياري)
+                <input type="url" name="image_url" placeholder="https://example.com/image.png">
+            </label>
+            <label class="file-label">أو قم برفع صورة
+                <input type="file" name="image_file" accept="image/*">
+            </label>
+        </div>
+        <label>كلمة المرور السرية
+            <input type="text" name="secret_password" required placeholder="كلمة مرور خاصة بهذا السؤال">
+        </label>
         <button type="submit" class="primary-btn">حفظ السؤال</button>
     </form>
 </section>
 
 <section class="card">
+    <h2>الرسالة السرية النهائية</h2>
+    <form method="post" class="admin-form">
+        <input type="hidden" name="form_type" value="update_settings">
+        <label>النص النهائي
+            <textarea name="final_message" placeholder="اكتب الرسالة التي ستظهر بعد إكمال كل الكلمات">{{ settings.final_message if settings else '' }}</textarea>
+        </label>
+        <button type="submit" class="primary-btn">تحديث الرسالة</button>
+    </form>
+</section>
+
+<section class="card">
     <h2>جميع الأسئلة</h2>
+    <p class="progress-info">التقدم الحالي: سؤال {{ current_index + 1 if total_questions and current_index < total_questions else total_questions }} من {{ total_questions }}</p>
     {% if questions %}
         <ul class="questions-list">
             {% for question in questions %}
@@ -36,6 +63,17 @@
                                 لا توجد إجابات خاطئة محفوظة
                             {% endif %}
                         </p>
+                        {% if question.comment %}
+                            <p><strong>التعليق السري:</strong> {{ question.comment }}</p>
+                        {% endif %}
+                        <p><strong>كلمة المرور:</strong> {{ question.secret_password }}</p>
+                        {% if question.image_path %}
+                            {% if question.image_path.startswith('http') %}
+                                <img src="{{ question.image_path }}" alt="صورة السؤال" class="question-thumbnail">
+                            {% else %}
+                                <img src="{{ url_for('static', filename=question.image_path) }}" alt="صورة السؤال" class="question-thumbnail">
+                            {% endif %}
+                        {% endif %}
                     </div>
                     <a class="secondary-btn" href="{{ url_for('edit_question', question_id=question.id) }}">تحرير</a>
                 </li>
@@ -44,5 +82,12 @@
     {% else %}
         <p>لم يتم إضافة أي أسئلة بعد.</p>
     {% endif %}
+</section>
+
+<section class="card">
+    <h2>إعادة ضبط اللعبة</h2>
+    <form method="post" action="{{ url_for('reset_game') }}">
+        <button type="submit" class="danger-btn">إعادة التقدم إلى البداية</button>
+    </form>
 </section>
 {% endblock %}
